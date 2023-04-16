@@ -1,5 +1,5 @@
 {
-  "name": "input-mask",
+  "name": "input-ui-mask",
   "version": "1.0.0",
   "description": "",
   "main": "dist/cjs/index.js",

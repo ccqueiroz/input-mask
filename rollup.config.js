@@ -1,12 +1,15 @@
-const resolve = require('@rollup/plugin-commonjs');
-const commonjs = require('@rollup/plugin-commonjs');
-const typescript = require('@rollup/plugin-typescript');
-const dts = require('rollup-plugin-dts');
-const terser = require('rollup-plugin-terser');
-const peerDepsExternal = require('rollup-plugin-peer-deps-external');
+import resolve from '@rollup/plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
+import dts from 'rollup-plugin-dts';
+import { terser } from 'rollup-plugin-terser';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import babel from '@rollup/plugin-babel';
+import json from '@rollup/plugin-json';
 
-const packageJson = require('./package.json');
+import packageJson from './package.json';
 
+const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 
 module.exports = [
   {
@@ -15,20 +18,35 @@ module.exports = [
       {
         file: packageJson.main,
         format: 'cjs',
-        sourcemap: true,
+        sourcemap: false,
       },
       {
         file: packageJson.module,
-        formart: 'esm',
-        sourcemap: true,
+        format: 'es',
+        sourcemap: false,
       },
+    ],
+    external: [
+      ...Object.keys(packageJson.dependencies || {}),
+      ...Object.keys(packageJson.peerDependencies || {}),
     ],
     plugins: [
       peerDepsExternal(),
-      resolve(),
+      resolve({
+        jsnext: true,
+        extensions,
+        moduleDirectories: ['node_modules'],
+      }),
+      json(),
       commonjs(),
-      typescript({ tsconfig: './tsconfig.json' }),
-      terser.terser(),
+      babel({
+        include: ['src/**/*'],
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
+        extensions,
+      }),
+      typescript({ tsconfig: './tsconfig.json', exclude: ['**/*.stories.*'] }),
+      terser(),
     ],
   },
   {

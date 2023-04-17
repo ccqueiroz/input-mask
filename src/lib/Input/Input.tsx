@@ -5,6 +5,7 @@ export interface Props extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 function Input(props: Props) {
+    console.log('props', props)
     return <div>
         <input {...props} />
     </div>
